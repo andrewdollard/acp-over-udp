@@ -1,6 +1,11 @@
 require 'socket'
+require_relative 'datagram'
+require_relative 'acp_connection'
+require 'pry'
 
-class AcpConnection
+class AcpClient
+
+  connections = {}
 
   def initialize(listen_ip, listen_port, forward_ip, forward_port)
     @listen_ip = listen_ip
@@ -12,13 +17,34 @@ class AcpConnection
   end
 
   def send(msg, dest_ip, dest_port)
-    complete_message = "('#{msg}', ('#{dest_ip}', #{dest_port}))"
-    @sock.send(complete_message, 0, @forward_ip, @forward_port)
+    d = Datagram.new({
+      source_ip: @listen_ip,
+      source_port: @listen_port,
+      dest_ip: dest_ip,
+      dest_port: dest_port,
+      message: msg,
+    })
+
+    packet = "('#{d.serialize}', ('#{dest_ip}', #{dest_port}))"
+    @sock.send(packet, 0, @forward_ip, @forward_port)
   end
 
   def rcv(len)
     msg, ip_addr = @sock.recv(len)
-    msg
+    datagram = Datagram.parse(msg)
+    datagram.message
+
+    ack_datagram = Datagram.new({
+      source_ip: @listen_ip,
+      source_port: @listen_port,
+      dest_ip: dest_ip,
+      dest_port: dest_port,
+      ack: datagram.seq,
+    })
   end
+
+end
+
+class AcpConnection
 
 end
