@@ -1,5 +1,5 @@
 require 'socket'
-require_relative 'datagram'
+require_relative 'acp'
 
 sock = UDPSocket.new
 
@@ -10,9 +10,9 @@ sock.bind(server_address, server_port)
 
 puts "Listening on: #{server_address}:#{server_port}"
 
-datagram = Datagram.new
+conn = AcpConnection.new
 
 loop do
   msg, ip_addr = sock.recv(1024)
-  puts "Received payload: #{datagram.deserialize(msg)}"
+  puts "Received payload: #{conn.deserialize(msg)}"
 end

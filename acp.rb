@@ -1,4 +1,8 @@
-class Datagram
+class AcpConnection
+
+  def initialize
+
+  end
 
   def serialize(msg)
     msg
