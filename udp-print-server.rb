@@ -1,18 +1,14 @@
-require 'socket'
 require_relative 'acp'
-
-sock = UDPSocket.new
 
 server_address = '0.0.0.0'
 server_port = 1337
+forward_ip = '0.0.0.0'
+forward_port = 1338
+puts "This socket identified by: #{server_address}:#{server_port}"
 
-sock.bind(server_address, server_port)
-
-puts "Listening on: #{server_address}:#{server_port}"
-
-conn = AcpConnection.new
+conn = AcpConnection.new(server_address, server_port, forward_ip, forward_port)
 
 loop do
-  msg, ip_addr = sock.recv(1024)
-  puts "Received payload: #{conn.deserialize(msg)}"
+  msg = conn.rcv(1024)
+  puts "Received payload: #{msg}"
 end
