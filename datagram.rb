@@ -3,14 +3,22 @@ class Datagram
   attr_reader :source_ip, :source_port, :dest_ip, :dest_port,
               :seq, :ack, :message
 
-  def initialize(params)
-    @source_ip = params[:source_ip]
-    @source_port = params[:source_port]
-    @dest_ip = params[:dest_ip]
-    @dest_port = params[:dest_port]
-    @seq = params[:seq]
-    @ack = params[:ack]
-    @message = params[:message]
+  def initialize(args)
+    args.each do |k,v|
+      instance_variable_set("@#{k}", v) unless v.nil?
+    end
+  # end
+  #   params.keys.each do |key|
+  #     # this.
+  #   end
+  #
+  #   @source_ip = params[:source_ip]
+  #   @source_port = params[:source_port]
+  #   @dest_ip = params[:dest_ip]
+  #   @dest_port = params[:dest_port]
+  #   @seq = params[:seq]
+  #   @ack = params[:ack]
+  #   @message = params[:message]
   end
 
   def self.parse(msg)

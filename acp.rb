@@ -22,6 +22,8 @@ class AcpClient
       source_port: @listen_port,
       dest_ip: dest_ip,
       dest_port: dest_port,
+      seq: 0,
+      ack: 0,
       message: msg,
     })
 
@@ -32,15 +34,19 @@ class AcpClient
   def rcv(len)
     msg, ip_addr = @sock.recv(len)
     datagram = Datagram.parse(msg)
-    datagram.message
 
     ack_datagram = Datagram.new({
       source_ip: @listen_ip,
       source_port: @listen_port,
-      dest_ip: dest_ip,
-      dest_port: dest_port,
+      dest_ip: datagram.source_ip,
+      dest_port: datagram.source_port,
+      seq: 0,
       ack: datagram.seq,
+      message: '',
     })
+    puts datagram.inspect
+
+    datagram.message
   end
 
 end
