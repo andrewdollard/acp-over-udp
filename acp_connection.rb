@@ -32,15 +32,24 @@ class AcpConnection
   end
 
   def parse(datagram)
+    # log_state("===PARSING===")
+    # puts datagram.inspect
+    print "#" if datagram.invalid?
     return [] if datagram.invalid?
     if datagram.ack > @ackd_seq
+      print "$"
       @ackd_seq = datagram.ack
     end
+    if datagram.seq == @recd_seq
+
+    end
     if datagram.seq <= @recd_seq
+      print "%"
       return [datagram(@sent_seq, '')]
     elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
-      @outbox << datagram.message
+      puts "received: #{datagram.message}"
+      # @outbox << datagram.message
       # TODO make this respond with next unacked msg
       return [datagram(@sent_seq, '')]
     end
@@ -68,7 +77,7 @@ class AcpConnection
   def log_state(header)
     puts header
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
-    puts "all messages: @messages.inspect"
+    puts "all messages: #{@messages.inspect}"
   end
 
 end

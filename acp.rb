@@ -16,6 +16,7 @@ class AcpClient
 
     Thread.new do
       loop do
+        # print "*"
         dg = Datagram.parse(sock_read)
         responses = find_conn(dg.source_ip, dg.source_port).parse(dg)
         responses.each { |resp| sock_write(resp) }
@@ -40,13 +41,15 @@ class AcpClient
   end
 
   def listen
-    loop do
-      @connections.each_value do |conn|
-        if conn.outbox.length > 0
-          return conn.outbox.shift
-        end
-      end
-    end
+    # loop do
+    #   @connections.each_value do |conn|
+    #     sleep 1
+    #     print '.'
+    #     if conn.outbox.length > 0
+    #       return conn.outbox.shift
+    #     end
+    #   end
+    # end
   end
 
   private
