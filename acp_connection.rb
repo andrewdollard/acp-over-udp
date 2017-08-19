@@ -20,8 +20,8 @@ class AcpConnection
     puts "===STARTING POLL==="
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
     puts @messages.inspect
-    return [] if @ackd_seq == @sent_seq
 
+    return [] if @ackd_seq == @sent_seq
     unackd = @messages[@ackd_seq..-1]
     puts "unackd messages: "
     puts unackd
@@ -40,13 +40,13 @@ class AcpConnection
   end
 
   def send(incoming_msg)
-    puts "===STARTING SEND==="
     @messages << incoming_msg
     @sent_seq += 1
+    unackd = @messages[@ackd_seq..-1]
+    puts "===STARTING SEND==="
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
     puts "all messages: "
     puts @messages.inspect
-    unackd = @messages[@ackd_seq..-1]
     puts "unackd messages: "
     puts unackd
     unackd.each_with_index.map do |msg, i|

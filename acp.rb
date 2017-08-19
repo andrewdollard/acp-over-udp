@@ -5,6 +5,15 @@ require_relative 'acp_connection'
 
 class AcpClient
 
+  def find_conn(ip, port)
+    conn = @connections["#{ip}#{port}"]
+    return conn if conn
+    conn = AcpConnection.new(@listen_ip, @listen_port, ip, port)
+    @connections["#{ip}#{port}"] = conn
+    conn
+  end
+
+
   def initialize(listen_ip, listen_port, forward_ip, forward_port)
     @connections = {}
     @listen_ip = listen_ip
@@ -16,31 +25,18 @@ class AcpClient
 
     listen_thread = Thread.new do
       loop do
-        sleep 3
+        sleep 2
         incoming = rcv(1024)
         dg = Datagram.parse(incoming)
         puts "===RECEIVED==="
         puts dg.inspect
-        conn = @connections["#{dg.source_ip}#{dg.source_port}"]
-        if conn
-          responses = conn.parse(dg)
-          if responses.length > 0
-            puts "===LISTENER SENT==="
-            puts responses.inspect
-            responses.each do |resp|
-              @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-            end
-          end
-        else
-          conn = AcpConnection.new(@listen_ip, @listen_port, dg.source_ip, dg.source_port)
-          @connections["#{dg.source_ip}#{dg.source_port}"] = conn
-          responses = conn.parse(dg)
-          if responses.length > 0
-            puts "===LISTENER SENT==="
-            puts responses.inspect
-            responses.each do |resp|
-              @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-            end
+        conn = find_conn(dg.source_ip, dg.source_port)
+        responses = conn.parse(dg)
+        if responses.length > 0
+          puts "===LISTENER SENT==="
+          puts responses.inspect
+          responses.each do |resp|
+            @sock.send(packet(resp), 0, @forward_ip, @forward_port)
           end
         end
       end
@@ -48,7 +44,7 @@ class AcpClient
 
     timer_thread = Thread.new do
       loop do
-        sleep 3
+        sleep 2
         @connections.keys.each do |key|
           conn = @connections[key]
           responses = conn.poll
@@ -65,23 +61,12 @@ class AcpClient
   end
 
   def send(msg, dest_ip, dest_port)
-    conn = @connections["#{dest_ip}#{dest_port}"]
-    if conn
-      responses = conn.send(msg)
-      puts "===USER SENT==="
-      puts responses.inspect
-      responses.each do |resp|
-        @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-      end
-    else
-      conn = AcpConnection.new(@listen_ip, @listen_port, dest_ip, dest_port)
-      @connections["#{dest_ip}#{dest_port}"] = conn
-      responses = conn.send(msg)
-      puts "===USER SENT==="
-      puts responses.inspect
-      responses.each do |resp|
-        @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-      end
+    conn = find_conn(dest_ip, dest_port)
+    responses = conn.send(msg)
+    puts "===USER SENT==="
+    puts responses.inspect
+    responses.each do |resp|
+      @sock.send(packet(resp), 0, @forward_ip, @forward_port)
     end
   end
 
