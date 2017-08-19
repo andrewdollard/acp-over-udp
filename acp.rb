@@ -5,15 +5,6 @@ require_relative 'acp_connection'
 
 class AcpClient
 
-  def find_conn(ip, port)
-    conn = @connections["#{ip}#{port}"]
-    return conn if conn
-    conn = AcpConnection.new(@listen_ip, @listen_port, ip, port)
-    @connections["#{ip}#{port}"] = conn
-    conn
-  end
-
-
   def initialize(listen_ip, listen_port, forward_ip, forward_port)
     @connections = {}
     @listen_ip = listen_ip
@@ -70,6 +61,8 @@ class AcpClient
     end
   end
 
+  private
+
   def wait
     @outbox.pop(false)
   end
@@ -81,6 +74,14 @@ class AcpClient
 
   def packet(datagram)
     "('#{datagram.serialize}', ('#{datagram.dest_ip}', #{datagram.dest_port}))"
+  end
+
+  def find_conn(ip, port)
+    conn = @connections["#{ip}#{port}"]
+    return conn if conn
+    conn = AcpConnection.new(@listen_ip, @listen_port, ip, port)
+    @connections["#{ip}#{port}"] = conn
+    conn
   end
 
 end
