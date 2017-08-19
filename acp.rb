@@ -16,47 +16,42 @@ class AcpClient
 
     Thread.new do
       loop do
-        incoming = rcv(1024)
-        dg = Datagram.parse(incoming)
-        # puts "===RECEIVED: dg.inspect"
+        dg = Datagram.parse(sock_read)
         responses = find_conn(dg.source_ip, dg.source_port).parse(dg)
-        if responses.length > 0
-          # puts "===LISTENER SENT: responses.inspect"
-          responses.each do |resp|
-            @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-          end
-        end
+        # puts "===RECEIVED: dg.inspect"
+        # puts "===LISTENER SENT: responses.inspect"
+        responses.each { |resp| sock_write(resp) }
       end
     end
 
     Thread.new do
       loop do
-        sleep 5
-        @connections.keys.each do |key|
-          conn = @connections[key]
+        sleep 2
+        @connections.each_value do |conn|
           responses = conn.poll
-          if responses.length > 0
-            # puts "===TIMER SENT: responses.inspect"
-            responses.each do |resp|
-              @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-            end
-          end
+          # puts "===TIMER SENT: responses.inspect"
+          responses.each { |resp| sock_write(resp) }
         end
       end
     end
+
   end
 
   def send(msg, dest_ip, dest_port)
     responses = find_conn(dest_ip, dest_port).send(msg)
     # puts "===USER SENT: responses.inspect"
-    responses.each do |resp|
-      @sock.send(packet(resp), 0, @forward_ip, @forward_port)
-    end
+    responses.each { |resp| sock_write(resp) }
   end
 
-  def rcv(len)
-    msg, ip_addr = @sock.recv(len)
+  private
+
+  def sock_read
+    msg, ip_addr = @sock.recv(1024)
     msg
+  end
+
+  def sock_write(datagram)
+      @sock.send(packet(datagram), 0, @forward_ip, @forward_port)
   end
 
   def packet(datagram)
