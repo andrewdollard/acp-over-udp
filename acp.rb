@@ -28,13 +28,13 @@ class AcpClient
         sleep 2
         incoming = rcv(1024)
         dg = Datagram.parse(incoming)
-        puts "===RECEIVED==="
-        puts dg.inspect
+        # puts "===RECEIVED==="
+        # puts dg.inspect
         conn = find_conn(dg.source_ip, dg.source_port)
         responses = conn.parse(dg)
         if responses.length > 0
-          puts "===LISTENER SENT==="
-          puts responses.inspect
+          # puts "===LISTENER SENT==="
+          # puts responses.inspect
           responses.each do |resp|
             @sock.send(packet(resp), 0, @forward_ip, @forward_port)
           end
@@ -49,8 +49,8 @@ class AcpClient
           conn = @connections[key]
           responses = conn.poll
           if responses.length > 0
-            puts "===TIMER SENT==="
-            puts responses.inspect
+            # puts "===TIMER SENT==="
+            # puts responses.inspect
             responses.each do |resp|
               @sock.send(packet(resp), 0, @forward_ip, @forward_port)
             end
@@ -63,8 +63,8 @@ class AcpClient
   def send(msg, dest_ip, dest_port)
     conn = find_conn(dest_ip, dest_port)
     responses = conn.send(msg)
-    puts "===USER SENT==="
-    puts responses.inspect
+    # puts "===USER SENT==="
+    # puts responses.inspect
     responses.each do |resp|
       @sock.send(packet(resp), 0, @forward_ip, @forward_port)
     end

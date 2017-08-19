@@ -17,14 +17,14 @@ class AcpConnection
   end
 
   def poll
-    puts "===STARTING POLL==="
-    puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
-    puts @messages.inspect
+    # puts "===STARTING POLL==="
+    # puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
+    # puts @messages.inspect
 
     return [] if @ackd_seq == @sent_seq
     unackd = @messages[@ackd_seq..-1]
-    puts "unackd messages: "
-    puts unackd
+    # puts "unackd messages: "
+    # puts unackd
     sleep 2
     unackd.each_with_index.map do |msg, i|
       Datagram.new({
@@ -43,12 +43,12 @@ class AcpConnection
     @messages << incoming_msg
     @sent_seq += 1
     unackd = @messages[@ackd_seq..-1]
-    puts "===STARTING SEND==="
-    puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
-    puts "all messages: "
-    puts @messages.inspect
-    puts "unackd messages: "
-    puts unackd
+    # puts "===STARTING SEND==="
+    # puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
+    # puts "all messages: "
+    # puts @messages.inspect
+    # puts "unackd messages: "
+    # puts unackd
     unackd.each_with_index.map do |msg, i|
       Datagram.new({
         source_ip: @listen_ip,
@@ -64,10 +64,10 @@ class AcpConnection
 
 
   def parse(datagram)
-    puts "===STARTING PARSE==="
-    puts datagram.inspect
-    puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
-    puts @messages.inspect
+    # puts "===STARTING PARSE==="
+    # puts datagram.inspect
+    # puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
+    # puts @messages.inspect
 
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
