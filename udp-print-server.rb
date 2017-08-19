@@ -9,10 +9,6 @@ puts "This socket identified by: #{server_address}:#{server_port}"
 client = AcpClient.new(server_address, server_port, forward_ip, forward_port)
 
 loop do
-  # res = client.wait
-  # if res
-  #   puts "Received payload: #{res}"
-  # else
-  #   print '.'
-  # end
+  res = client.listen
+  puts "Received payload: #{res}"
 end

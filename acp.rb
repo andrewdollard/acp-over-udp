@@ -39,6 +39,16 @@ class AcpClient
     responses.each { |resp| sock_write(resp) }
   end
 
+  def listen
+    loop do
+      @connections.each_value do |conn|
+        if conn.outbox.length > 0
+          return conn.outbox.shift
+        end
+      end
+    end
+  end
+
   private
 
   def sock_read

@@ -2,6 +2,8 @@ require_relative 'datagram'
 
 class AcpConnection
 
+  attr_reader :outbox
+
   def initialize(listen_ip, listen_port, server_ip, server_port)
     @listen_ip = listen_ip
     @listen_port = listen_port
@@ -11,6 +13,7 @@ class AcpConnection
     @sent_seq = 0
     @ackd_seq = 0
     @recd_seq = 0
+    @outbox = []
   end
 
   def poll
@@ -36,7 +39,7 @@ class AcpConnection
       return [datagram(@sent_seq, '')]
     elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
-      puts "message received: #{datagram.message}"
+      @outbox << datagram.message
       return [datagram(@sent_seq, '')]
     end
     []
