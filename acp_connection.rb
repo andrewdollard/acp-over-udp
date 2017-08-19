@@ -14,100 +14,61 @@ class AcpConnection
   end
 
   def poll
-    # puts "===STARTING POLL==="
-    # log_state
+    # log_state("===STARTING POLL===")
     return [] if @ackd_seq == @sent_seq
-    sleep 2
     unackd.each_with_index.map do |msg, i|
-      Datagram.new({
-        source_ip: @listen_ip,
-        source_port: @listen_port,
-        dest_ip: @server_ip,
-        dest_port: @server_port,
-        seq: i + @ackd_seq + 1,
-        ack: @recd_seq,
-        message: msg,
-      })
+      datagram(@ackd_seq + i + 1, msg)
     end
   end
 
   def send(incoming_msg)
     @messages << incoming_msg
     @sent_seq += 1
-    # puts "===STARTING SEND==="
-    # log_state
+    # log_state("===STARTING SEND===")
     unackd.each_with_index.map do |msg, i|
-      datagram(@ackd_seq + i + 1, @recd_seq, msg)
-      # Datagram.new({
-      #   source_ip: @listen_ip,
-      #   source_port: @listen_port,
-      #   dest_ip: @server_ip,
-      #   dest_port: @server_port,
-      #   seq: i + 1 + @ackd_seq,
-      #   ack: @recd_seq,
-      #   message: msg,
-      # })
+      datagram(@ackd_seq + i + 1, msg)
     end
   end
 
   def parse(datagram)
-    # puts "===STARTING PARSE==="
+    # log_state("===STARTING PARSE===")
     # puts datagram.inspect
-    # log_state
-
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
+      return []
     end
-
     if datagram.seq == @recd_seq + 1
       @recd_seq += 1
       puts "message received: #{datagram.message}"
-      return [datagram(@sent_seq, @recd_seq, '')]
-      # return [Datagram.new({
-      #   source_ip: @listen_ip,
-      #   source_port: @listen_port,
-      #   dest_ip: @server_ip,
-      #   dest_port: @server_port,
-      #   seq: @sent_seq,
-      #   ack: @recd_seq,
-      #   message:'',
-      # })]
+      return [datagram(@sent_seq, '')]
     elsif datagram.seq <= @recd_seq
-      return [datagram(@sent_seq, @recd_seq, '')]
-      # return [Datagram.new({
-      #   source_ip: @listen_ip,
-      #   source_port: @listen_port,
-      #   dest_ip: @server_ip,
-      #   dest_port: @server_port,
-      #   seq: @sent_seq,
-      #   ack: @recd_seq,
-      #   message:'',
-      # })]
+      return [datagram(@sent_seq, '')]
     end
     []
   end
 
   private
 
-  def datagram(seq, ack, msg)
+  def datagram(seq, msg)
     Datagram.new({
       source_ip: @listen_ip,
       source_port: @listen_port,
       dest_ip: @server_ip,
       dest_port: @server_port,
       seq: seq,
-      ack: ack,
+      ack: @recd_seq,
       message: msg,
     })
   end
 
   def unackd
     um = @messages[@ackd_seq..-1]
-    puts "unacked: #{um}"
+    # puts "unacked: #{um}"
     um
   end
 
-  def log_state
+  def log_state(header)
+    puts header
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
     puts "all messages: @messages.inspect"
   end
