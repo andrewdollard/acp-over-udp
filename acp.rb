@@ -18,18 +18,15 @@ class AcpClient
       loop do
         dg = Datagram.parse(sock_read)
         responses = find_conn(dg.source_ip, dg.source_port).parse(dg)
-        # puts "===RECEIVED: dg.inspect"
-        # puts "===LISTENER SENT: responses.inspect"
         responses.each { |resp| sock_write(resp) }
       end
     end
 
     Thread.new do
       loop do
-        sleep 2
+        sleep 1
         @connections.each_value do |conn|
           responses = conn.poll
-          # puts "===TIMER SENT: responses.inspect"
           responses.each { |resp| sock_write(resp) }
         end
       end
@@ -39,7 +36,6 @@ class AcpClient
 
   def send(msg, dest_ip, dest_port)
     responses = find_conn(dest_ip, dest_port).send(msg)
-    # puts "===USER SENT: responses.inspect"
     responses.each { |resp| sock_write(resp) }
   end
 
@@ -51,7 +47,7 @@ class AcpClient
   end
 
   def sock_write(datagram)
-      @sock.send(packet(datagram), 0, @forward_ip, @forward_port)
+    @sock.send(packet(datagram), 0, @forward_ip, @forward_port)
   end
 
   def packet(datagram)

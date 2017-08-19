@@ -14,7 +14,6 @@ class AcpConnection
   end
 
   def poll
-    # log_state("===STARTING POLL===")
     return [] if @ackd_seq == @sent_seq
     unackd.each_with_index.map do |msg, i|
       datagram(@ackd_seq + i + 1, msg)
@@ -24,24 +23,20 @@ class AcpConnection
   def send(incoming_msg)
     @messages << incoming_msg
     @sent_seq += 1
-    # log_state("===STARTING SEND===")
     unackd.each_with_index.map do |msg, i|
       datagram(@ackd_seq + i + 1, msg)
     end
   end
 
   def parse(datagram)
-    # log_state("===STARTING PARSE===")
-    # puts datagram.inspect
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
-      return []
     end
-    if datagram.seq == @recd_seq + 1
+    if datagram.seq < @recd_seq
+      return [datagram(@sent_seq, '')]
+    elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
       puts "message received: #{datagram.message}"
-      return [datagram(@sent_seq, '')]
-    elsif datagram.seq <= @recd_seq
       return [datagram(@sent_seq, '')]
     end
     []
