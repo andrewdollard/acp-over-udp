@@ -24,7 +24,7 @@ class AcpClient
 
     Thread.new do
       loop do
-        sleep 1
+        sleep 3
         @connections.each_value do |conn|
           responses = conn.poll
           responses.each { |resp| sock_write(resp) }

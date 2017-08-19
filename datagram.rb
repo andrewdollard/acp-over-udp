@@ -29,7 +29,9 @@ class Datagram
       message: params[6] || '',
       chk: params[7]
     }
-    new(attrs, checksum(msg) == chk)
+    valid = checksum(msg) == chk
+    # binding.pry
+    new(attrs, valid)
   end
 
   def self.checksum(msg)

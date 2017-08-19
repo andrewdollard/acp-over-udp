@@ -41,6 +41,7 @@ class AcpConnection
     elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
       @outbox << datagram.message
+      # TODO make this respond with next unacked msg
       return [datagram(@sent_seq, '')]
     end
     []
@@ -61,9 +62,7 @@ class AcpConnection
   end
 
   def unackd
-    um = @messages[@ackd_seq..-1]
-    # puts "unacked: #{um}"
-    um
+    @messages[@ackd_seq..-1]
   end
 
   def log_state(header)
