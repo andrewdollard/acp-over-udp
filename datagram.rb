@@ -1,7 +1,9 @@
 class Datagram
 
-  ATTRS = [ :source_ip, :source_port, :dest_ip, :dest_port,
-            :seq, :ack, :message ]
+  ATTRS = [ :source_ip, :source_port,
+            :dest_ip, :dest_port,
+            :seq, :ack,
+            :message ]
 
   attr_reader *ATTRS
 

@@ -7,9 +7,15 @@ import traceback
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 server_address = '0.0.0.0'
-server_port = int(input("Type the port number you desire for this socket: "))
-reliability = float(input("Type the fraction of datagrams that should be dropped: "))
-corruption_rate = float(input("Type the fraction of datagrams that should be corrupted: "))
+# server_port = int(input("Type the port number you desire for this socket: "))
+# reliability = float(input("Type the fraction of datagrams that should be dropped: "))
+# corruption_rate = float(input("Type the fraction of datagrams that should be corrupted: "))
+#
+
+
+server_port = 1338
+reliability = .2
+corruption_rate = .2
 
 client = (server_address, server_port)
 sock.bind(client)
