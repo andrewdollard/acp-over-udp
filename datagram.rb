@@ -15,7 +15,15 @@ class Datagram
 
   def self.parse(msg)
     params = msg.split('|')
-    attrs = ATTRS.map.each_with_index{ |a, i| [a, params[i]] }.to_h
+    attrs = {
+      source_ip: params[0],
+      source_port: params[1],
+      dest_ip: params[2],
+      dest_port: params[3],
+      seq: params[4].to_i,
+      ack: params[5].to_i,
+      message: params[6],
+    }
     new(attrs)
   end
 
