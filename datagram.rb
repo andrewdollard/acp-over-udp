@@ -22,7 +22,7 @@ class Datagram
       dest_port: params[3],
       seq: params[4].to_i,
       ack: params[5].to_i,
-      message: params[6],
+      message: params[6] || '',
     }
     new(attrs)
   end
