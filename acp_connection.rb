@@ -32,6 +32,7 @@ class AcpConnection
   end
 
   def parse(datagram)
+    return [] if datagram.invalid?
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
     end

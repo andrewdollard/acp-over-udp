@@ -16,8 +16,8 @@ server_address = '0.0.0.0'
 server_port = 1338
 # reliability = 0
 corruption_rate = 0
-reliability = .3
-# corruption_rate = .2
+reliability = .2
+corruption_rate = .3
 
 client = (server_address, server_port)
 sock.bind(client)
