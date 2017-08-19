@@ -35,7 +35,7 @@ class AcpConnection
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
     end
-    if datagram.seq < @recd_seq
+    if datagram.seq <= @recd_seq
       return [datagram(@sent_seq, '')]
     elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
