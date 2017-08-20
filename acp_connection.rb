@@ -32,23 +32,21 @@ class AcpConnection
   end
 
   def parse(datagram)
-    # log_state("===PARSING===")
-    # puts datagram.inspect
+    new_ack = false
     return [] if datagram.invalid?
     if datagram.ack > @ackd_seq
-      log_state("===PARSE, NEW ACK==")
-      puts datagram.inspect
       @ackd_seq = datagram.ack
-    elsif datagram.seq <= @recd_seq
-      log_state("===PARSE, ALREADY RECEIVED SEQ==")
-      puts datagram.inspect
-      return [datagram(@sent_seq, '')]
+      new_ack = true
+    end
+
+    if datagram.seq <= @recd_seq
+      if !new_ack
+        return [datagram(@sent_seq, '')]
+      end
     elsif datagram.seq == @recd_seq + 1
-      log_state("===PARSE, NEW SEQ==")
-      puts datagram.inspect
       @recd_seq += 1
-      puts "received: #{datagram.message}"
-      # @outbox << datagram.message
+      # puts "received: #{datagram.message}"
+      @outbox << datagram.message
       # TODO make this respond with next unacked msg
       return [datagram(@sent_seq, '')]
     end

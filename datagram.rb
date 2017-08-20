@@ -14,23 +14,26 @@ class Datagram
   end
 
   def self.parse(chkd_msg)
-    checkmatch = chkd_msg.match(/(.*)\|([0-9]*)$/)
-    msg = checkmatch[1]
-    chk = checkmatch[2]
+    begin
+      checkmatch = chkd_msg.match(/(.*)\|([0-9]*)$/)
+      msg = checkmatch[1]
+      chk = checkmatch[2]
 
-    params = chkd_msg.split('|')
-    attrs = {
-      source_ip: params[0],
-      source_port: params[1],
-      dest_ip: params[2],
-      dest_port: params[3],
-      seq: params[4].to_i,
-      ack: params[5].to_i,
-      message: params[6] || '',
-      chk: params[7]
-    }
-    valid = checksum(msg) == chk
-    # binding.pry
+      params = chkd_msg.split('|')
+      attrs = {
+        source_ip: params[0],
+        source_port: params[1],
+        dest_ip: params[2],
+        dest_port: params[3],
+        seq: params[4].to_i,
+        ack: params[5].to_i,
+        message: params[6] || '',
+        chk: params[7]
+      }
+      valid = checksum(msg) == chk
+    rescue
+      return new({}, false)
+    end
     new(attrs, valid)
   end
 

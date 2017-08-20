@@ -8,4 +8,7 @@ puts "This socket identified by: #{server_address}:#{server_port}"
 
 client = AcpClient.new(server_address, server_port, forward_ip, forward_port)
 
-client.join
+loop do
+  res = client.listen
+  puts "Received payload: #{res}"
+end

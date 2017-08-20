@@ -12,9 +12,9 @@ server_port = 1337
 client = AcpClient.new(client_address, client_rcv_port, forward_ip, forward_port)
 
 loop do
-  # print "Enter a string to be echoed: "
   string = (0...8).map { (65 + rand(26)).chr }.join
+  puts "sending: #{string}"
   client.send(string, server_ip, server_port)
-  sleep 30
+  sleep 5
 end
 
