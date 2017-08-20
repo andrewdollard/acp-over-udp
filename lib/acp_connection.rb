@@ -62,10 +62,6 @@ class AcpConnection
     })
   end
 
-  def unackd
-    @messages[@ackd_seq..-1]
-  end
-
   def log_state(header)
     puts header
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
