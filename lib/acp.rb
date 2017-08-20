@@ -1,4 +1,3 @@
-require 'pry'
 require 'socket'
 require_relative 'datagram'
 require_relative 'acp_connection'
@@ -14,7 +13,7 @@ class AcpClient
     @sock = UDPSocket.new
     @sock.bind(listen_ip, listen_port)
 
-    @listen_thread = Thread.new do
+    Thread.new do
       loop do
         dg = Datagram.parse(sock_read)
         responses = find_conn(dg.source_ip, dg.source_port).parse(dg)
@@ -22,7 +21,7 @@ class AcpClient
       end
     end
 
-    @poll_thread = Thread.new do
+    Thread.new do
       loop do
         sleep 1
         @connections.each_value do |conn|
