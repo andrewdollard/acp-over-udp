@@ -14,18 +14,19 @@ class AcpClient
     @sock = UDPSocket.new
     @sock.bind(listen_ip, listen_port)
 
-    Thread.new do
+    @listen_thread = Thread.new do
       loop do
-        # print "*"
+        print "*"
         dg = Datagram.parse(sock_read)
         responses = find_conn(dg.source_ip, dg.source_port).parse(dg)
         responses.each { |resp| sock_write(resp) }
       end
     end
 
-    Thread.new do
+    @poll_thread = Thread.new do
       loop do
-        sleep 3
+        sleep 10
+        print "P"
         @connections.each_value do |conn|
           responses = conn.poll
           responses.each { |resp| sock_write(resp) }
@@ -33,6 +34,11 @@ class AcpClient
       end
     end
 
+  end
+
+  def join
+    @listen_thread.join
+    @poll_thread.join
   end
 
   def send(msg, dest_ip, dest_port)

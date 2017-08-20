@@ -18,7 +18,7 @@ class AcpConnection
 
   def poll
     return [] if @ackd_seq == @sent_seq
-    unackd.each_with_index.map do |msg, i|
+    @messages[@ackd_seq..-1].each_with_index.map do |msg, i|
       datagram(@ackd_seq + i + 1, msg)
     end
   end
@@ -26,7 +26,7 @@ class AcpConnection
   def send(incoming_msg)
     @messages << incoming_msg
     @sent_seq += 1
-    unackd.each_with_index.map do |msg, i|
+    @messages[@ackd_seq..-1].each_with_index.map do |msg, i|
       datagram(@ackd_seq + i + 1, msg)
     end
   end
@@ -34,19 +34,18 @@ class AcpConnection
   def parse(datagram)
     # log_state("===PARSING===")
     # puts datagram.inspect
-    print "#" if datagram.invalid?
     return [] if datagram.invalid?
     if datagram.ack > @ackd_seq
-      print "$"
+      log_state("===PARSE, NEW ACK==")
+      puts datagram.inspect
       @ackd_seq = datagram.ack
-    end
-    if datagram.seq == @recd_seq
-
-    end
-    if datagram.seq <= @recd_seq
-      print "%"
+    elsif datagram.seq <= @recd_seq
+      log_state("===PARSE, ALREADY RECEIVED SEQ==")
+      puts datagram.inspect
       return [datagram(@sent_seq, '')]
     elsif datagram.seq == @recd_seq + 1
+      log_state("===PARSE, NEW SEQ==")
+      puts datagram.inspect
       @recd_seq += 1
       puts "received: #{datagram.message}"
       # @outbox << datagram.message
