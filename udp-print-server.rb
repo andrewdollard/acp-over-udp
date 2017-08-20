@@ -1,4 +1,4 @@
-require_relative 'acp'
+require_relative 'lib/acp'
 
 server_address = '0.0.0.0'
 server_port = 1337

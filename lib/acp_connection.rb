@@ -18,38 +18,33 @@ class AcpConnection
 
   def poll
     return [] if @ackd_seq == @sent_seq
-    @messages[@ackd_seq..-1].each_with_index.map do |msg, i|
-      datagram(@ackd_seq + i + 1, msg)
-    end
+    next_datagram
   end
 
   def send(incoming_msg)
     @messages << incoming_msg
     @sent_seq += 1
-    @messages[@ackd_seq..-1].each_with_index.map do |msg, i|
-      datagram(@ackd_seq + i + 1, msg)
-    end
+    next_datagram
   end
 
   def parse(datagram)
-    new_ack = false
     return [] if datagram.invalid?
+
+    new_ack = false
     if datagram.ack > @ackd_seq
       @ackd_seq = datagram.ack
       new_ack = true
     end
 
-    if datagram.seq <= @recd_seq
-      if !new_ack
-        return [datagram(@sent_seq, '')]
-      end
+    if (datagram.seq <= @recd_seq) && !new_ack
+      return next_datagram
+
     elsif datagram.seq == @recd_seq + 1
       @recd_seq += 1
-      # puts "received: #{datagram.message}"
       @outbox << datagram.message
-      # TODO make this respond with next unacked msg
-      return [datagram(@sent_seq, '')]
+      return next_datagram
     end
+
     []
   end
 
@@ -75,6 +70,14 @@ class AcpConnection
     puts header
     puts "ackd_seq: #{@ackd_seq} sent_seq: #{@sent_seq} recd_seq: #{@recd_seq}"
     puts "all messages: #{@messages.inspect}"
+  end
+
+  def next_datagram
+    if @messages.length > 0
+      [datagram(@ackd_seq + 1, @messages[@ackd_seq])]
+    else
+      [datagram(@ackd_seq, '')]
+    end
   end
 
 end

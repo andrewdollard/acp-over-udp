@@ -24,7 +24,7 @@ class AcpClient
 
     @poll_thread = Thread.new do
       loop do
-        sleep 2
+        sleep 1
         @connections.each_value do |conn|
           responses = conn.poll
           responses.each { |resp| sock_write(resp) }
@@ -32,11 +32,6 @@ class AcpClient
       end
     end
 
-  end
-
-  def join
-    @listen_thread.join
-    @poll_thread.join
   end
 
   def send(msg, dest_ip, dest_port)

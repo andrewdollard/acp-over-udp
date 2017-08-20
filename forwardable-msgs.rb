@@ -1,4 +1,4 @@
-require_relative 'acp'
+require_relative 'lib/acp'
 
 client_address = '0.0.0.0'
 client_rcv_port = 1339
@@ -15,6 +15,6 @@ loop do
   string = (0...8).map { (65 + rand(26)).chr }.join
   puts "sending: #{string}"
   client.send(string, server_ip, server_port)
-  sleep 5
+  sleep 10
 end
 
